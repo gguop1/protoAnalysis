@@ -685,7 +685,17 @@ def nba_DailyLineup_Analysis(daily):
             homeResult = (homeResult / homeIndex) + homeTeamResult
             awayResult = (awayResult / awayIndex) + awayTeamResult
 
-            print(homeTeamName + ' : ' + awayTeamName + ' ■ ' + str(homeResult) + ' : ' + str(awayResult) + ' ◆ ' + str(homeScore) + ' : ' + str(awayScore))
+            if homeResult > awayResult:
+                changeHomeScore = int(homeScore)
+                changeAwayScore = changeHomeScore - 10
+            else:
+                changeAwayScore = int(awayScore)
+                changeHomeScore = changeAwayScore - 10
+                
+            print(TEAM_EN_TO[homeTeamName] + ' : ' + TEAM_EN_TO[awayTeamName])
+            print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
+            print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
+            print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
 if __name__ == '__main__':
 

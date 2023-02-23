@@ -17,7 +17,7 @@ import datetime
 from collections import Counter
 import numpy as np
 
-nba_mkdir_path = 'D:/pythonAppCode/ProtoAnalysis/nba/'
+nba_mkdir_path = 'D:/pythonAppCode/ProtoAnalysis/NBA/'
 
 TEAM_KOR_TO = {'멤피그리':'Memphis Grizzlies',
              '덴버너게':'Denver Nuggets',
@@ -80,6 +80,37 @@ TEAM_EN_TO = {'Memphis Grizzlies':'멤피그리',
              'Dallas Mavericks':'댈러매버',
              'Detroit Pistons':'디트피스',
              'Houston Rockets':'휴스로케'}
+
+TEAM_EN_SHORT = {'Atlanta Hawks':'ATL',
+                'Brooklyn Nets':'BKN',
+                'Boston Celtics':'BOS',
+                'Charlotte Hornets':'CHA',
+                'Chicago Bulls':'CHI',
+                'Cleveland Cavaliers':'CLE',
+                'Dallas Mavericks':'DAL',
+                'Denver Nuggets':'DEN',
+                'Detroit Pistons':'DET',
+                'Golden State Warriors':'GSW',
+                'Houston Rockets':'HOU',
+                'Indiana Pacers':'IND',
+                'LA Clippers':'LAC',
+                'Los Angeles Lakers':'LAL',
+                'Memphis Grizzlies':'MEM',
+                'Miami Heat':'MIA',
+                'Milwaukee Bucks':'MIL',
+                'Minnesota Timberwolves':'MIN',
+                'New Orleans Pelicans':'NOP',
+                'New York Knicks':'NYK',
+                'Oklahoma City Thunder':'OKC',
+                'Orlando Magic':'ORL',
+                'Philadelphia 76ers':'PHI',
+                'Phoenix Suns':'PHX',
+                'Portland Trail Blazers':'POR',
+                'Sacramento Kings':'SAC',
+                'San Antonio Spurs':'SAS',
+                'Toronto Raptors':'TOR',
+                'Utah Jazz':'UTA',
+                'Washington Wizards':'WAS'}
 
 # NBA 공홈 선수별 데이터 크롤링
 def nba_Player_DataLoad(year):
@@ -422,7 +453,7 @@ def nba_Team_Analysis():
         data.to_excel(writer, sheet_name="sheet0",index=False) # 그대로 저장
 
 # NBA 2019~2023 상대 전적 (홈, 원정 동일 위치) - typeText 'Home', 'Away'
-def nba_Betman_vs_Score(typeText, homeName, awayName):
+def betman_vs_Score(typeText, homeName, awayName):
 
     yearList = [2019,2020,2021,2022,2023]
 
@@ -461,7 +492,7 @@ def nba_Betman_vs_Score(typeText, homeName, awayName):
     return teamScore/len(teamScoreList)
 
 # NBA 2022~2023 최근 전적 (홈, 원정 동일 위치) - typeText 'Home', 'Away'
-def nba_Betman_RecentScore(typeText, teamName):
+def betman_RecentScore(typeText, teamName):
 
     yearList = [2022,2023]
 
@@ -499,7 +530,7 @@ def nba_Betman_RecentScore(typeText, teamName):
     return teamScore/len(teamScoreList)
 
 # 배트맨 NBA 데이터 크롤링
-def nba_Betman_DataLoad(year):
+def betman_DataLoad(year):
 
     fileName = nba_mkdir_path + '배트맨_NBA_' + str(year) + '년도_데이터.xlsx'
 
@@ -671,14 +702,14 @@ def nba_DailyLineup_Analysis(daily):
 
                 
             # (상대전적x0.65) + (최근전적x0.35)
-            vsScore = nba_Betman_vs_Score('Home',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
-            recentScore = nba_Betman_RecentScore('Home',TEAM_EN_TO[homeTeamName])
+            vsScore = betman_vs_Score('Home',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
+            recentScore = betman_RecentScore('Home',TEAM_EN_TO[homeTeamName])
 
             homeScore = (vsScore*0.65) + (recentScore*0.35)
 
             # (상대전적x0.65) + (최근전적x0.35)
-            vsScore = nba_Betman_vs_Score('Away',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
-            recentScore = nba_Betman_RecentScore('Away',TEAM_EN_TO[awayTeamName])
+            vsScore = betman_vs_Score('Away',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
+            recentScore = betman_RecentScore('Away',TEAM_EN_TO[awayTeamName])
 
             awayScore = (vsScore*0.65) + (recentScore*0.35)
 
@@ -695,31 +726,107 @@ def nba_DailyLineup_Analysis(daily):
             print(TEAM_EN_TO[homeTeamName] + ' : ' + TEAM_EN_TO[awayTeamName])
             print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
             print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
+            print('팀, 플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
             print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
+
+def betman_DailyLineup_Analysis(homeName, awayName):
+    
+    playerFileName = nba_mkdir_path + 'NBA_선수_스탯_분석_데이터.xlsx'
+    teamFileName = nba_mkdir_path + 'NBA_팀_스탯_분석_데이터.xlsx'
+
+    player_wb = load_workbook(filename = playerFileName, data_only=True)
+    player_ws = player_wb[player_wb.sheetnames[0]]
+
+    team_wb = load_workbook(filename = teamFileName, data_only=True)
+    team_ws = team_wb[team_wb.sheetnames[0]]
+
+    homeEnName = TEAM_KOR_TO[homeName]
+    awayEnName = TEAM_KOR_TO[awayName]
+
+    homeShortName = TEAM_EN_SHORT[homeEnName]
+    awayShortName = TEAM_EN_SHORT[awayEnName]
+
+    # 플레이어
+    homeIndex = 1
+    awayIndex = 1
+
+    homeResult = 0
+    awayResult = 0
+    for row in player_ws.rows:
+        if row[2].value == homeShortName and row[7].value != None:
+            homeResult += row[7].value
+            homeIndex += 1
+
+        if row[2].value == awayShortName and row[7].value != None:
+            awayResult += row[7].value
+            awayIndex += 1
+
+    # 팀
+    homeTeamResult = 1
+    awayTeamResult = 1
+
+    homeTeamName = ''
+    awayTeamName = ''
+    for row in team_ws.rows:
+        if row[1].value == homeEnName:
+            homeTeamName = row[1].value
+            homeTeamResult = row[6].value
+
+        if row[1].value == awayEnName:
+            awayTeamName = row[1].value
+            awayTeamResult = row[6].value
+
+        
+    # (상대전적x0.65) + (최근전적x0.35)
+    vsScore = betman_vs_Score('Home',homeName,awayName)
+    recentScore = betman_RecentScore('Home',homeName)
+
+    homeScore = (vsScore*0.65) + (recentScore*0.35)
+
+    # (상대전적x0.65) + (최근전적x0.35)
+    vsScore = betman_vs_Score('Away',homeName,awayName)
+    recentScore = betman_RecentScore('Away',awayName)
+
+    awayScore = (vsScore*0.65) + (recentScore*0.35)
+
+    homeResult = (homeResult / homeIndex) + homeTeamResult
+    awayResult = (awayResult / awayIndex) + awayTeamResult
+
+    if homeResult > awayResult:
+        changeHomeScore = int(homeScore)
+        changeAwayScore = changeHomeScore - 10
+    else:
+        changeAwayScore = int(awayScore)
+        changeHomeScore = changeAwayScore - 10
+        
+    print(homeName + ' : ' + awayName)
+    print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
+    print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
+    print('팀, 플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
+    print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
 if __name__ == '__main__':
 
-    # ■■■■■■■■■■ 매일 데이터 업데이트 ■■■■■■■■■■
+    # ■■■■■■■■■■ 매일 업데이트 ■■■■■■■■■■
 
     # nba_Player_DataLoad('2022-23')
     # nba_Team_DataLoad('2022-23')
-    # nba_Betman_DataLoad(2023)
+    # betman_DataLoad(2023)
 
     # nba_Player_Analysis()
     # nba_Team_Analysis()
 
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-    # 미국 날짜로 금일 -1일
-    nba_DailyLineup_Analysis('20230216')
+    # 미국 라인업이 나온다면 배트맨 라인업 기준으로 점수 뽑기
+
+    # 미국 라인업 - 날짜로 금일 -1일
+    # nba_DailyLineup_Analysis('20230216')
+
+    # 배트맨 라인업
+    betman_DailyLineup_Analysis('필라76s','멤피그리')
+    betman_DailyLineup_Analysis('토론랩터','뉴올펠리')
+    betman_DailyLineup_Analysis('댈러매버','샌안스퍼')
 
 
 
-
-
-
-
-
-
-
-   

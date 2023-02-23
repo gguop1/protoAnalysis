@@ -17,7 +17,7 @@ import datetime
 from collections import Counter
 import numpy as np
 
-betman_mkdir_path = 'D:/pythonAppCode/ProtoAnalysis/betman/'
+betman_mkdir_path = 'D:/pythonAppCode/ProtoAnalysis/Betman/'
 
 # 베트맨(프로토사이트) 데이터 크롤링
 def betman_DataLoad(year):

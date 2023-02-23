@@ -4,8 +4,8 @@
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
-nba/
-betman/
+NBA/
+Betman/
 *.py[cod]
 *$py.class
 

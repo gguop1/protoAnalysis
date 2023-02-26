@@ -529,6 +529,44 @@ def betman_RecentScore(typeText, teamName):
 
     return teamScore/len(teamScoreList)
 
+# NBA 2019~2023 상대 점수차 (홈, 원정 동일 위치)
+def betman_Difference_Score(homeName, awayName):
+
+    yearList = [2019,2020,2021,2022,2023]
+
+    teamScoreList = []
+
+    for year in yearList:
+
+        loadfileName = nba_mkdir_path + '배트맨_NBA_' + str(year) + '년도_데이터.xlsx'
+
+        wb = load_workbook(filename = loadfileName, data_only=True)
+        ws = wb[wb.sheetnames[0]]
+
+        for row in ws.rows:
+
+            # 0='No', 1='종류', 2='날짜', 3='리그 이름', 4='홈 네임', 5='원정 네임', 6='승리 배당'
+            # 7='무 배당', 8='패배 배당', 9='홈 핸디', 10='무 핸디', 11='원정 핸디', 12='경기 결과', 13='경기 결과 점수'
+
+            _homeName = str(row[4].value)
+            _awayName = str(row[5].value)
+
+            _matchResult = str(row[13].value)
+
+            if _homeName != homeName or _awayName != awayName: continue
+
+            result = int(_matchResult.split(':')[0]) - int(_matchResult.split(':')[1])
+
+            if result < 0: teamScoreList.append(-result)
+            else: teamScoreList.append(result)
+
+                    
+    teamScore = 0
+    for score in teamScoreList:
+        teamScore += int(score)
+
+    return teamScore/len(teamScoreList)
+
 # 배트맨 NBA 데이터 크롤링
 def betman_DataLoad(year):
 
@@ -729,6 +767,7 @@ def nba_DailyLineup_Analysis(daily):
             print('팀, 플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
             print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
+# 베트맨 금일 라인업 통계
 def betman_DailyLineup_Analysis(homeName, awayName):
     
     playerFileName = nba_mkdir_path + 'NBA_선수_스탯_분석_데이터.xlsx'
@@ -765,16 +804,12 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     homeTeamResult = 1
     awayTeamResult = 1
 
-    homeTeamName = ''
-    awayTeamName = ''
     for row in team_ws.rows:
         if row[1].value == homeEnName:
-            homeTeamName = row[1].value
-            homeTeamResult = row[6].value
+            homeTeamResult = int(row[6].value)
 
         if row[1].value == awayEnName:
-            awayTeamName = row[1].value
-            awayTeamResult = row[6].value
+            awayTeamResult = int(row[6].value)
 
         
     # (상대전적x0.65) + (최근전적x0.35)
@@ -789,32 +824,35 @@ def betman_DailyLineup_Analysis(homeName, awayName):
 
     awayScore = (vsScore*0.65) + (recentScore*0.35)
 
-    homeResult = (homeResult / homeIndex) + homeTeamResult
-    awayResult = (awayResult / awayIndex) + awayTeamResult
+    homeResult = int((homeResult / homeIndex))
+    awayResult = int((awayResult / awayIndex))
+
+    differenceScore = int(betman_Difference_Score(homeName,awayName))
 
     if homeResult > awayResult:
         changeHomeScore = int(homeScore)
-        changeAwayScore = changeHomeScore - 10
+        changeAwayScore = changeHomeScore - differenceScore
     else:
         changeAwayScore = int(awayScore)
-        changeHomeScore = changeAwayScore - 10
+        changeHomeScore = changeAwayScore - differenceScore
         
     print(homeName + ' : ' + awayName)
     print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
     print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
-    print('팀, 플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
+    print('플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
+    print('팀 스탯 점수 -> ' + str(homeTeamResult) + ' : ' + str(awayTeamResult))
     print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
 if __name__ == '__main__':
 
     # ■■■■■■■■■■ 매일 업데이트 ■■■■■■■■■■
 
-    # nba_Player_DataLoad('2022-23')
-    # nba_Team_DataLoad('2022-23')
-    # betman_DataLoad(2023)
+    nba_Player_DataLoad('2022-23')
+    nba_Team_DataLoad('2022-23')
+    betman_DataLoad(2023)
 
-    # nba_Player_Analysis()
-    # nba_Team_Analysis()
+    nba_Player_Analysis()
+    nba_Team_Analysis()
 
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
@@ -824,9 +862,6 @@ if __name__ == '__main__':
     # nba_DailyLineup_Analysis('20230216')
 
     # 배트맨 라인업
-    betman_DailyLineup_Analysis('필라76s','멤피그리')
-    betman_DailyLineup_Analysis('토론랩터','뉴올펠리')
-    betman_DailyLineup_Analysis('댈러매버','샌안스퍼')
-
-
-
+    betman_DailyLineup_Analysis('골든워리','미네울브')
+    betman_DailyLineup_Analysis('포틀트레','휴스로케')
+    betman_DailyLineup_Analysis('덴버너게','LA클리퍼')

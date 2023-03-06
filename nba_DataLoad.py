@@ -270,35 +270,44 @@ def nba_Player_Analysis():
             # NBA 공식 선수 효율성
             _nbaEfficiency = (_pts + _reb + _ast + _stl + _blk) - ((_fga - _fgm) + (_fta - _ftm) + _tov)
 
-            if year == '2019-20': 
+            if year == '2019-20':
                 save_ws.cell(index, 1).value = _playerID
                 save_ws.cell(index, 2).value = _playerName
                 save_ws.cell(index, 3).value = _teamName
                 save_ws.cell(index, 4).value = _nbaEfficiency
             elif year == '2020-21':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _playerID:
                         save_ws.cell(saveNumber, 5).value = _nbaEfficiency
+                        checkSave = True
                         break
-                    
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_playerID,_playerName,_teamName,'',_nbaEfficiency])
             elif year == '2021-22':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _playerID:
                         save_ws.cell(saveNumber, 6).value = _nbaEfficiency
+                        checkSave = True
                         break
-
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_playerID,_playerName,_teamName,'','',_nbaEfficiency])
             elif year == '2022-23':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _playerID:
                         save_ws.cell(saveNumber, 7).value = _nbaEfficiency
+                        checkSave = True
                         break
-
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_playerID,_playerName,_teamName,'','','',_nbaEfficiency])
 
             index += 1
             save_wb.save(save_fileName)  
@@ -399,28 +408,37 @@ def nba_Team_Analysis():
                 save_ws.cell(index, 3).value = _nbaTeamScore
             elif year == '2020-21':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _teamID:
                         save_ws.cell(saveNumber, 4).value = _nbaTeamScore
+                        checkSave = True
                         break
-                    
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_teamID,_teamName,'',_nbaTeamScore])
             elif year == '2021-22':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _teamID:
                         save_ws.cell(saveNumber, 5).value = _nbaTeamScore
+                        checkSave = True
                         break
-
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_teamID,_teamName,'','',_nbaTeamScore])
             elif year == '2022-23':
                 saveNumber = 1
+                checkSave = False
                 for saveRow in sheet.rows:
                     if saveRow[0].value == _teamID:
                         save_ws.cell(saveNumber, 6).value = _nbaTeamScore
+                        checkSave = True
                         break
-
                     saveNumber += 1
+                if checkSave == False:
+                    save_ws.append([_teamID,_teamName,'','','',_nbaTeamScore])
 
             index += 1
             save_wb.save(save_fileName)  
@@ -786,30 +804,30 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     awayShortName = TEAM_EN_SHORT[awayEnName]
 
     # 플레이어
-    homeIndex = 1
-    awayIndex = 1
+    homePlayerIndex = 1
+    awayPlayerIndex = 1
 
-    homeResult = 0
-    awayResult = 0
+    homePlayerScore = 0
+    awayPlayerScore = 0
     for row in player_ws.rows:
         if row[2].value == homeShortName and row[7].value != None:
-            homeResult += row[7].value
-            homeIndex += 1
+            homePlayerScore += row[8].value
+            homePlayerIndex += 1
 
         if row[2].value == awayShortName and row[7].value != None:
-            awayResult += row[7].value
-            awayIndex += 1
+            awayPlayerScore += row[8].value
+            awayPlayerIndex += 1
 
     # 팀
-    homeTeamResult = 1
-    awayTeamResult = 1
+    homeTeamScore = 1
+    awayTeamScore = 1
 
     for row in team_ws.rows:
         if row[1].value == homeEnName:
-            homeTeamResult = int(row[6].value)
+            homeTeamScore = int(row[7].value)/4
 
         if row[1].value == awayEnName:
-            awayTeamResult = int(row[6].value)
+            awayTeamScore = int(row[7].value)/4
 
         
     # (상대전적x0.65) + (최근전적x0.35)
@@ -824,8 +842,12 @@ def betman_DailyLineup_Analysis(homeName, awayName):
 
     awayScore = (vsScore*0.65) + (recentScore*0.35)
 
-    homeResult = int((homeResult / homeIndex))
-    awayResult = int((awayResult / awayIndex))
+    homePlayerScore = int((homePlayerScore / homePlayerIndex))
+    awayPlayerScore = int((awayPlayerScore / awayPlayerIndex))
+
+    # 홈 팀에 100점 더 추가로 줌
+    homeResult = homePlayerScore + 100 + homeTeamScore
+    awayResult = awayPlayerScore + awayTeamScore
 
     differenceScore = int(betman_Difference_Score(homeName,awayName))
 
@@ -839,8 +861,9 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     print(homeName + ' : ' + awayName)
     print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
     print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
-    print('플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
-    print('팀 스탯 점수 -> ' + str(homeTeamResult) + ' : ' + str(awayTeamResult))
+    print('총 합 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
+    print('팀 스탯 점수 -> ' + str(homeTeamScore) + ' : ' + str(awayTeamScore))
+    print('플레이어 스탯 점수 -> ' + str(homePlayerScore) + ' : ' + str(awayPlayerScore))
     print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
 if __name__ == '__main__':
@@ -862,6 +885,7 @@ if __name__ == '__main__':
     # nba_DailyLineup_Analysis('20230216')
 
     # 배트맨 라인업
-    betman_DailyLineup_Analysis('골든워리','미네울브')
-    betman_DailyLineup_Analysis('포틀트레','휴스로케')
-    betman_DailyLineup_Analysis('덴버너게','LA클리퍼')
+    betman_DailyLineup_Analysis('마이히트','애틀호크')
+    betman_DailyLineup_Analysis('덴버너게','토론랩터')
+    betman_DailyLineup_Analysis('새크킹스','뉴올펠리')
+

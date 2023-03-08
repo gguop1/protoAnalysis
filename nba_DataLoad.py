@@ -50,6 +50,37 @@ TEAM_KOR_TO = {'멤피그리':'Memphis Grizzlies',
              '디트피스':'Detroit Pistons',
              '휴스로케':'Houston Rockets'}
 
+TEAM_ID = {'멤피그리':'MEM',
+             '덴버너게':'DEN',
+             '필라76s':'PHI',
+             '피닉선즈':'PHO',
+             '보스셀틱':'BOS',
+             '샬럿호네':'CHA',
+             '뉴올펠리':'NO',
+             '토론랩터':'TOR',
+             '브루네츠':'BKN',
+             '애틀호크':'ATL',
+             '시카불스':'CHI',
+             '클리캐벌':'CLE',
+             '샌안스퍼':'SA',
+             '인디페이':'IND',
+             '밀워벅스':'MIL',
+             '골든워리':'GS',
+             '워싱위저':'WAS',
+             '마이히트':'MIA',
+             '미네울브':'MIN',
+             'LA레이커':'LAL',
+             'LA클리퍼':'LAC',
+             '유타재즈':'UTA',
+             '새크킹스':'SAC',
+             '오클썬더':'OKC',
+             '뉴욕닉스':'NY',
+             '올랜매직':'ORL',
+             '포틀트레':'POR',
+             '댈러매버':'DAL',
+             '디트피스':'DET',
+             '휴스로케':'HOU'}
+
 TEAM_EN_TO = {'Memphis Grizzlies':'멤피그리',
              'Denver Nuggets':'덴버너게',
              'Philadelphia 76ers':'필라76s',
@@ -471,7 +502,7 @@ def nba_Team_Analysis():
         data.to_excel(writer, sheet_name="sheet0",index=False) # 그대로 저장
 
 # NBA 2019~2023 상대 전적 (홈, 원정 동일 위치) - typeText 'Home', 'Away'
-def betman_vs_Score(typeText, homeName, awayName):
+def betman_vs_Score(typeText, homeID, awayID):
 
     yearList = [2019,2020,2021,2022,2023]
 
@@ -491,12 +522,12 @@ def betman_vs_Score(typeText, homeName, awayName):
 
             _date = str(row[2].value)
 
-            _homeName = str(row[4].value)
-            _awayName = str(row[5].value)
+            _homeID = str(row[4].value)
+            _awayID = str(row[5].value)
 
-            _matchResult = str(row[13].value)
+            _matchResult = str(row[15].value)
 
-            if _homeName != homeName or _awayName != awayName: continue
+            if _homeID != homeID or _awayID != awayID: continue
 
             if typeText == 'Home':
                 teamScoreList.append(_matchResult.split(':')[0])
@@ -510,7 +541,7 @@ def betman_vs_Score(typeText, homeName, awayName):
     return teamScore/len(teamScoreList)
 
 # NBA 2022~2023 최근 전적 (홈, 원정 동일 위치) - typeText 'Home', 'Away'
-def betman_RecentScore(typeText, teamName):
+def betman_RecentScore(typeText, teamID):
 
     yearList = [2022,2023]
 
@@ -530,15 +561,15 @@ def betman_RecentScore(typeText, teamName):
 
             _date = str(row[2].value)
 
-            _homeName = str(row[4].value)
-            _awayName = str(row[5].value)
-            _matchResult = str(row[13].value)
+            _homeID = str(row[4].value)
+            _awayID = str(row[5].value)
+            _matchResult = str(row[15].value)
 
             if typeText == 'Home':
-                if _homeName == teamName: 
+                if _homeID == teamID: 
                     teamScoreList.append(_matchResult.split(':')[0])
             elif typeText == 'Away':
-                if _awayName == teamName: 
+                if _awayID == teamID: 
                     teamScoreList.append(_matchResult.split(':')[1])
                     
     teamScore = 0
@@ -548,7 +579,7 @@ def betman_RecentScore(typeText, teamName):
     return teamScore/len(teamScoreList)
 
 # NBA 2019~2023 상대 점수차 (홈, 원정 동일 위치)
-def betman_Difference_Score(homeName, awayName):
+def betman_Difference_Score(homeID, awayID):
 
     yearList = [2019,2020,2021,2022,2023]
 
@@ -566,12 +597,12 @@ def betman_Difference_Score(homeName, awayName):
             # 0='No', 1='종류', 2='날짜', 3='리그 이름', 4='홈 네임', 5='원정 네임', 6='승리 배당'
             # 7='무 배당', 8='패배 배당', 9='홈 핸디', 10='무 핸디', 11='원정 핸디', 12='경기 결과', 13='경기 결과 점수'
 
-            _homeName = str(row[4].value)
-            _awayName = str(row[5].value)
+            _homeID = str(row[4].value)
+            _awayID = str(row[5].value)
 
-            _matchResult = str(row[13].value)
+            _matchResult = str(row[15].value)
 
-            if _homeName != homeName or _awayName != awayName: continue
+            if _homeID != homeID or _awayID != awayID: continue
 
             result = int(_matchResult.split(':')[0]) - int(_matchResult.split(':')[1])
 
@@ -594,7 +625,7 @@ def betman_DataLoad(year):
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(['No', '종류', '날짜', '리그 이름', '홈 네임', '원정 네임','승리 배당','무 배당','패배 배당','홈 핸디','무 핸디','원정 핸디','경기 결과','경기 결과 점수'])
+    ws.append(['No', '종류', '날짜', '리그 이름','홈 ID','원정 ID','홈 네임', '원정 네임','승리 배당','무 배당','패배 배당','홈 핸디','무 핸디','원정 핸디','경기 결과','경기 결과 점수'])
 
     wb.save(fileName)  
 
@@ -647,6 +678,8 @@ def betman_DataLoad(year):
                 _matchDate = datetime.datetime.fromtimestamp(int(date)).strftime('%Y-%m-%d %H:%M:%S')
 
                 _leagueName = li[7] # 리그 이름
+                _homeID = li[12] # 홈 ID
+                _awayID = li[13] # 원정 ID
                 _homeName = li[14] # 홈 네임
                 _awayName = li[15] # 원정 네임
                 _winRate = li[16] # 승리 배당률
@@ -661,7 +694,7 @@ def betman_DataLoad(year):
 
                 _matchResult = li[33] # 경기 결과 점수
 
-                if _type != 'BK' or _matchResult == None or _homeHandy != 0.0: 
+                if _type != 'BK' or _matchResult == None or _homeHandy != 0.0 or _leagueName != 'NBA': 
                     continue
 
                 ## 엑셀 저장
@@ -669,121 +702,21 @@ def betman_DataLoad(year):
                 ws.cell(row, 2).value = _type
                 ws.cell(row, 3).value = _matchDate
                 ws.cell(row, 4).value = _leagueName
-                ws.cell(row, 5).value = _homeName
-                ws.cell(row, 6).value = _awayName
-                ws.cell(row, 7).value = _winRate
-                ws.cell(row, 8).value = _drawRate
-                ws.cell(row, 9).value = _lossRate
-                ws.cell(row, 10).value = _homeHandy
-                ws.cell(row, 11).value = _drawHandy
-                ws.cell(row, 12).value = _awayHandy
-                ws.cell(row, 13).value = _result
-                ws.cell(row, 14).value = _matchResult
+                ws.cell(row, 5).value = _homeID
+                ws.cell(row, 6).value = _awayID
+                ws.cell(row, 7).value = _homeName
+                ws.cell(row, 8).value = _awayName
+                ws.cell(row, 9).value = _winRate
+                ws.cell(row, 10).value = _drawRate
+                ws.cell(row, 11).value = _lossRate
+                ws.cell(row, 12).value = _homeHandy
+                ws.cell(row, 13).value = _drawHandy
+                ws.cell(row, 14).value = _awayHandy
+                ws.cell(row, 15).value = _result
+                ws.cell(row, 16).value = _matchResult
                 row += 1
 
     wb.save(fileName)
-
-# NBA 공홈 금일 팀, 선수 라인업 크롤링해서 분석
-def nba_DailyLineup_Analysis(daily):
-
-    playerFileName = nba_mkdir_path + 'NBA_선수_스탯_분석_데이터.xlsx'
-    teamFileName = nba_mkdir_path + 'NBA_팀_스탯_분석_데이터.xlsx'
-
-    player_wb = load_workbook(filename = playerFileName, data_only=True)
-    player_ws = player_wb[player_wb.sheetnames[0]]
-
-    team_wb = load_workbook(filename = teamFileName, data_only=True)
-    team_ws = team_wb[team_wb.sheetnames[0]]
-
-    url = f"https://stats.nba.com/js/data/leaders/00_daily_lineups_{daily}.json"
-
-    headers = {
-        "Referer": "https://www.nba.com/",            
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-    }
-    
-    with HTMLSession() as s:
-        result = s.get(url, headers=headers).text
-        json_result = json.loads(result)
-
-        output = json_result['games']
-
-        for games in output:
-
-            homePlayerIds = []
-            awayPlayerIds = []
-
-            homeTeamId = games['homeTeam']['teamId'] 
-            awayTeamId = games['awayTeam']['teamId'] 
-
-            for home in games['homeTeam']['players']:
-                homePlayerIds.append(home['personId'])
-
-            for away in games['awayTeam']['players']:
-                awayPlayerIds.append(away['personId'])
-
-            # 플레이어
-            homeIndex = 1
-            awayIndex = 1
-
-            homeResult = 0
-            awayResult = 0
-            for row in player_ws.rows:
-                for id in homePlayerIds:
-                    if row[0].value == id and row[7].value != None:
-                        homeResult += row[7].value
-                        homeIndex += 1
-                        break
-
-                for id in awayPlayerIds:
-                    if row[0].value == id and row[7].value != None:
-                        awayResult += row[7].value
-                        awayIndex += 1
-                        break
-            
-            # 팀
-            homeTeamResult = 1
-            awayTeamResult = 1
-
-            homeTeamName = ''
-            awayTeamName = ''
-            for row in team_ws.rows:
-                if row[0].value == homeTeamId:
-                    homeTeamName = row[1].value
-                    homeTeamResult = row[6].value
-
-                if row[0].value == awayTeamId:
-                    awayTeamName = row[1].value
-                    awayTeamResult = row[6].value
-
-                
-            # (상대전적x0.65) + (최근전적x0.35)
-            vsScore = betman_vs_Score('Home',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
-            recentScore = betman_RecentScore('Home',TEAM_EN_TO[homeTeamName])
-
-            homeScore = (vsScore*0.65) + (recentScore*0.35)
-
-            # (상대전적x0.65) + (최근전적x0.35)
-            vsScore = betman_vs_Score('Away',TEAM_EN_TO[homeTeamName],TEAM_EN_TO[awayTeamName])
-            recentScore = betman_RecentScore('Away',TEAM_EN_TO[awayTeamName])
-
-            awayScore = (vsScore*0.65) + (recentScore*0.35)
-
-            homeResult = (homeResult / homeIndex) + homeTeamResult
-            awayResult = (awayResult / awayIndex) + awayTeamResult
-
-            if homeResult > awayResult:
-                changeHomeScore = int(homeScore)
-                changeAwayScore = changeHomeScore - 10
-            else:
-                changeAwayScore = int(awayScore)
-                changeHomeScore = changeAwayScore - 10
-                
-            print(TEAM_EN_TO[homeTeamName] + ' : ' + TEAM_EN_TO[awayTeamName])
-            print('기본 -> ' + str(int(homeScore)) + ' : ' + str(int(awayScore)))
-            print('스탯 점수 추가 후 -> ' + str(changeHomeScore) + ' : ' + str(changeAwayScore))
-            print('팀, 플레이어 스탯 점수 -> ' + str(homeResult) + ' : ' + str(awayResult))
-            print('■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■')
 
 # 베트맨 금일 라인업 통계
 def betman_DailyLineup_Analysis(homeName, awayName):
@@ -811,11 +744,11 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     awayPlayerScore = 0
     for row in player_ws.rows:
         if row[2].value == homeShortName and row[7].value != None:
-            homePlayerScore += row[8].value
+            homePlayerScore += row[7].value
             homePlayerIndex += 1
 
         if row[2].value == awayShortName and row[7].value != None:
-            awayPlayerScore += row[8].value
+            awayPlayerScore += row[7].value
             awayPlayerIndex += 1
 
     # 팀
@@ -824,21 +757,21 @@ def betman_DailyLineup_Analysis(homeName, awayName):
 
     for row in team_ws.rows:
         if row[1].value == homeEnName:
-            homeTeamScore = int(row[7].value)/4
+            homeTeamScore = int(row[6].value)
 
         if row[1].value == awayEnName:
-            awayTeamScore = int(row[7].value)/4
+            awayTeamScore = int(row[6].value)
 
         
     # (상대전적x0.65) + (최근전적x0.35)
-    vsScore = betman_vs_Score('Home',homeName,awayName)
-    recentScore = betman_RecentScore('Home',homeName)
+    vsScore = betman_vs_Score('Home',TEAM_ID[homeName],TEAM_ID[awayName])
+    recentScore = betman_RecentScore('Home',TEAM_ID[homeName])
 
     homeScore = (vsScore*0.65) + (recentScore*0.35)
 
     # (상대전적x0.65) + (최근전적x0.35)
-    vsScore = betman_vs_Score('Away',homeName,awayName)
-    recentScore = betman_RecentScore('Away',awayName)
+    vsScore = betman_vs_Score('Away',TEAM_ID[homeName],TEAM_ID[awayName])
+    recentScore = betman_RecentScore('Away',TEAM_ID[awayName])
 
     awayScore = (vsScore*0.65) + (recentScore*0.35)
 
@@ -849,7 +782,7 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     homeResult = homePlayerScore + 100 + homeTeamScore
     awayResult = awayPlayerScore + awayTeamScore
 
-    differenceScore = int(betman_Difference_Score(homeName,awayName))
+    differenceScore = int(betman_Difference_Score(TEAM_ID[homeName],TEAM_ID[awayName]))
 
     if homeResult > awayResult:
         changeHomeScore = int(homeScore)
@@ -879,13 +812,9 @@ if __name__ == '__main__':
 
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-    # 미국 라인업이 나온다면 배트맨 라인업 기준으로 점수 뽑기
+    # # 배트맨 라인업
+    betman_DailyLineup_Analysis('보스셀틱','포틀트레')
+    betman_DailyLineup_Analysis('마이히트','클리캐벌')
+    betman_DailyLineup_Analysis('뉴올펠리','댈러매버')
 
-    # 미국 라인업 - 날짜로 금일 -1일
-    # nba_DailyLineup_Analysis('20230216')
-
-    # 배트맨 라인업
-    betman_DailyLineup_Analysis('마이히트','애틀호크')
-    betman_DailyLineup_Analysis('덴버너게','토론랩터')
-    betman_DailyLineup_Analysis('새크킹스','뉴올펠리')
 

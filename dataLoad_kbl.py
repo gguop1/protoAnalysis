@@ -869,5 +869,5 @@ if __name__ == '__main__':
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
     # 배트맨 라인업
-    betman_DailyLineup_Analysis('서울SK','KT소닉붐')
+    betman_DailyLineup_Analysis('전주KCC','창원LG')
 

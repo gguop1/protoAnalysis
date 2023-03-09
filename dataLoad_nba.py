@@ -813,8 +813,8 @@ if __name__ == '__main__':
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
     # # 배트맨 라인업
-    betman_DailyLineup_Analysis('보스셀틱','포틀트레')
-    betman_DailyLineup_Analysis('마이히트','클리캐벌')
-    betman_DailyLineup_Analysis('뉴올펠리','댈러매버')
+    betman_DailyLineup_Analysis('멤피그리','골든워리')
+    betman_DailyLineup_Analysis('밀워벅스','브루네츠')
+    betman_DailyLineup_Analysis('새크킹스','뉴욕닉스')
 
 

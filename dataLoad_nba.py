@@ -5,9 +5,6 @@ import urllib
 import openpyxl
 import pandas as pd
 import time
-from wordpress_xmlrpc import Client
-from wordpress_xmlrpc import WordPressPost
-from wordpress_xmlrpc.methods import posts
 from openpyxl import load_workbook
 from datetime import datetime
 import os.path   
@@ -813,8 +810,18 @@ if __name__ == '__main__':
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
     # # 배트맨 라인업
-    betman_DailyLineup_Analysis('멤피그리','골든워리')
-    betman_DailyLineup_Analysis('밀워벅스','브루네츠')
-    betman_DailyLineup_Analysis('새크킹스','뉴욕닉스')
-
+    betman_DailyLineup_Analysis('필라76s','보스셀틱')
+    betman_DailyLineup_Analysis('시카불스','애틀호크')
+    betman_DailyLineup_Analysis('멤피그리','포틀트레')
+    betman_DailyLineup_Analysis('뉴올펠리','새크킹스')
+    betman_DailyLineup_Analysis('유타재즈','LA레이커')
+    betman_DailyLineup_Analysis('골든워리','오클썬더')
+    betman_DailyLineup_Analysis('디트피스','브루네츠')
+    betman_DailyLineup_Analysis('인디페이','뉴욕닉스')
+    betman_DailyLineup_Analysis('애틀호크','워싱위저')
+    betman_DailyLineup_Analysis('보스셀틱','토론랩터')
+    betman_DailyLineup_Analysis('밀워벅스','시카불스')
+    betman_DailyLineup_Analysis('뉴올펠리','멤피그리')
+    betman_DailyLineup_Analysis('댈러매버','새크킹스')
+    betman_DailyLineup_Analysis('LA클리퍼','LA레이커')
 

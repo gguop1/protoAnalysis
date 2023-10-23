@@ -5,9 +5,6 @@ import urllib
 import openpyxl
 import pandas as pd
 import time
-from wordpress_xmlrpc import Client
-from wordpress_xmlrpc import WordPressPost
-from wordpress_xmlrpc.methods import posts
 from openpyxl import load_workbook
 from datetime import datetime
 import os.path   
@@ -21,14 +18,14 @@ import pprint
 kbl_mkdir_path = 'D:/pythonAppCode/ProtoAnalysis/KBL/'
 
 TEAM_ID = {'부산KT':'06',
-           '울산모비':'10',
+           '울산현대모비스':'10',
            '원주DB':'16',
            '서울삼성':'35',
            '창원LG':'50',
            '서울SK':'55',
            '전주KCC':'60',
            '안양KGC':'70',
-           '한국가스':'64',
+           '대구한국가스공사':'64',
            '고양캐롯':'73'}
              
 
@@ -766,8 +763,6 @@ def betman_DailyLineup_Analysis(homeName, awayName):
     team_wb = load_workbook(filename = teamFileName, data_only=True)
     team_ws = team_wb[team_wb.sheetnames[0]]
 
-    print(awayName)
-
     if homeName == '울산모비': homeName = '울산현대모비스'
     if awayName == '울산모비': awayName = '울산현대모비스'
     
@@ -776,8 +771,6 @@ def betman_DailyLineup_Analysis(homeName, awayName):
 
     if homeName == 'KT소닉붐': homeName = '부산KT'
     if awayName == 'KT소닉붐': awayName = '부산KT'
-
-    print(awayName)
 
     # 플레이어
     homePlayerIndex = 1
@@ -869,5 +862,6 @@ if __name__ == '__main__':
     # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
     # 배트맨 라인업
-    betman_DailyLineup_Analysis('전주KCC','창원LG')
+    betman_DailyLineup_Analysis('서울SK','전주KCC')
+    betman_DailyLineup_Analysis('울산모비','고양캐롯')
 
